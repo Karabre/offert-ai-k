@@ -1,73 +1,41 @@
-
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calculator, Plus, FileText, Settings, TrendingUp, Clock, DollarSign } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table"
+import { Calculator, FileText, List, Plus, Settings, TrendingUp, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [quotes] = useState([
-    {
-      id: "OFF-001",
-      customer: "Anna Andersson",
-      amount: 145000,
-      status: "Skickad",
-      date: "2024-01-15",
-      items: "L-kök 3.2m × 2.1m"
-    },
-    {
-      id: "OFF-002", 
-      customer: "Erik Johansson",
-      amount: 89000,
-      status: "Accepterad",
-      date: "2024-01-14",
-      items: "Rakt kök 2.4m"
-    },
-    {
-      id: "OFF-003",
-      customer: "Maria Nilsson", 
-      amount: 210000,
-      status: "Under granskning",
-      date: "2024-01-13",
-      items: "U-kök 4.1m × 3.2m med köksö"
-    }
-  ]);
 
   const stats = [
-    {
-      title: "Totala offerter",
-      value: "23",
-      change: "+12% från förra månaden",
-      icon: <FileText className="h-6 w-6" />
-    },
-    {
-      title: "Offertvärde",
-      value: "2.4M kr",
-      change: "+18% från förra månaden", 
-      icon: <DollarSign className="h-6 w-6" />
-    },
-    {
-      title: "Genomsnittlig tid",
-      value: "8 min",
-      change: "-45% från förra månaden",
-      icon: <Clock className="h-6 w-6" />
-    },
-    {
-      title: "Acceptansgrad",
-      value: "67%",
-      change: "+5% från förra månaden",
-      icon: <TrendingUp className="h-6 w-6" />
-    }
+    { title: "Offerter denna månad", value: "12", change: "+2 sedan förra månaden", icon: FileText },
+    { title: "Accepterade offerter", value: "8", change: "67% acceptansgrad", icon: TrendingUp },
+    { title: "Totalt värde", value: "245 000 kr", change: "+15% sedan förra månaden", icon: Calculator },
+    { title: "Aktiva kunder", value: "23", change: "+3 nya denna vecka", icon: Users }
+  ];
+
+  const recentQuotes = [
+    { id: "OFF-001234", customer: "Anna Andersson", amount: "45 000 kr", status: "Skickad", date: "2024-01-15" },
+    { id: "OFF-001235", customer: "Erik Johansson", amount: "78 500 kr", status: "Accepterad", date: "2024-01-14" },
+    { id: "OFF-001236", customer: "Maria Lindström", amount: "32 000 kr", status: "Väntar svar", date: "2024-01-13" },
+    { id: "OFF-001237", customer: "Lars Nilsson", amount: "156 000 kr", status: "Under granskning", date: "2024-01-12" }
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Skickad": return "bg-blue-100 text-blue-700";
-      case "Accepterad": return "bg-green-100 text-green-700";
-      case "Under granskning": return "bg-yellow-100 text-yellow-700";
-      default: return "bg-gray-100 text-gray-700";
+      case "Accepterad": return "bg-green-100 text-green-800";
+      case "Skickad": return "bg-blue-100 text-blue-800";
+      case "Väntar svar": return "bg-yellow-100 text-yellow-800";
+      case "Under granskning": return "bg-purple-100 text-purple-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -84,11 +52,11 @@ const Dashboard = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => navigate('/company-settings')}>
               <Settings className="h-4 w-4 mr-2" />
               Inställningar
             </Button>
-            <Button onClick={() => navigate('/quote-generator')} className="bg-gradient-to-r from-blue-600 to-orange-500">
+            <Button size="sm" onClick={() => navigate('/quote-generator')} className="bg-gradient-to-r from-blue-600 to-orange-500">
               <Plus className="h-4 w-4 mr-2" />
               Ny offert
             </Button>
@@ -100,111 +68,113 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Välkommen tillbaka!</h1>
-          <p className="text-slate-600">Här är en översikt över dina senaste offerter och aktiviteter.</p>
+          <p className="text-slate-600">Här är en översikt över dina senaste aktiviteter</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/quote-generator')}>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="h-12 w-12 bg-gradient-to-br from-blue-600 to-orange-500 rounded-lg flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800">Skapa offert</h3>
+                  <p className="text-sm text-slate-600">Generera ny offert med AI</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/price-list')}>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="h-12 w-12 bg-gradient-to-br from-green-600 to-teal-500 rounded-lg flex items-center justify-center">
+                  <List className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800">Hantera prislista</h3>
+                  <p className="text-sm text-slate-600">Uppdatera priser och produkter</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/company-settings')}>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="h-12 w-12 bg-gradient-to-br from-purple-600 to-pink-500 rounded-lg flex items-center justify-center">
+                  <Building className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800">Företagsinställningar</h3>
+                  <p className="text-sm text-slate-600">Hantera företagsinformation</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index} className="border-0 shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">
-                  {stat.title}
-                </CardTitle>
-                <div className="text-blue-600">
-                  {stat.icon}
+            <Card key={index} className="border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
+                    <stat.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">{stat.title}</h3>
+                    <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+                    <p className="text-sm text-slate-500">{stat.change}</p>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-slate-800">{stat.value}</div>
-                <p className="text-xs text-slate-500 mt-1">{stat.change}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Quotes */}
-          <div className="lg:col-span-2">
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Senaste offerter</CardTitle>
-                    <CardDescription>Översikt över dina nyligen skapade offerter</CardDescription>
-                  </div>
-                  <Button variant="outline" size="sm">Se alla</Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {quotes.map((quote) => (
-                    <div key={quote.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="font-semibold text-slate-800">{quote.id}</span>
-                          <Badge className={getStatusColor(quote.status)}>{quote.status}</Badge>
-                        </div>
-                        <p className="text-slate-600 font-medium">{quote.customer}</p>
-                        <p className="text-sm text-slate-500">{quote.items}</p>
-                        <p className="text-xs text-slate-400">{quote.date}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-slate-800">{quote.amount.toLocaleString()} kr</p>
-                        <Button variant="ghost" size="sm" className="mt-1">Se detaljer</Button>
-                      </div>
-                    </div>
+        {/* Recent Quotes */}
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Senaste offerterna</h2>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">Offert ID</TableHead>
+                    <TableHead>Kund</TableHead>
+                    <TableHead>Belopp</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Datum</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentQuotes.map((quote) => (
+                    <TableRow key={quote.id}>
+                      <TableCell className="font-medium">{quote.id}</TableCell>
+                      <TableCell>{quote.customer}</TableCell>
+                      <TableCell>{quote.amount}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(quote.status)}`}>{quote.status}</span>
+                      </TableCell>
+                      <TableCell>{quote.date}</TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="space-y-6">
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Snabbåtgärder</CardTitle>
-                <CardDescription>Kom igång snabbt med vanliga uppgifter</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  onClick={() => navigate('/quote-generator')} 
-                  className="w-full justify-start bg-gradient-to-r from-blue-600 to-orange-500"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Skapa ny offert
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Hantera prislista
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Företagsinställningar
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Tips & Hjälp</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <p className="font-medium text-blue-800 mb-1">💡 Protips</p>
-                    <p className="text-blue-600">Använd AI-analysering för IKEA-ritningar för snabbare offertering</p>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <p className="font-medium text-green-800 mb-1">📈 Förbättra konvertering</p>
-                    <p className="text-green-600">Lägg till bilder på tidigare projekt i dina offerter</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-sm text-slate-500">
+                      Visar {recentQuotes.length} av {recentQuotes.length}+ offerter
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

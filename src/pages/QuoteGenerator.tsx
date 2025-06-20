@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, ArrowLeft, FileText, Send, Eye, Upload, Wand2 } from "lucide-react";
+import { Calculator, ArrowLeft, FileText, Send, Eye, Wand2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import PDFUploader from "@/components/PDFUploader";
 
 const QuoteGenerator = () => {
   const navigate = useNavigate();
@@ -61,6 +62,23 @@ const QuoteGenerator = () => {
     });
 
     return { items, totalPrice };
+  };
+
+  const handlePDFData = (parsedItems) => {
+    // Convert PDF data to measurements text format
+    const measurementText = parsedItems.map(item => 
+      `${item.quantity}x ${item.description}${item.dimensions ? ` (${item.dimensions})` : ''}`
+    ).join('\n');
+    
+    setFormData(prev => ({
+      ...prev,
+      measurements: measurementText
+    }));
+
+    toast({
+      title: "PDF-data importerad",
+      description: "Mått har överförts till textfältet"
+    });
   };
 
   const handleGenerate = async () => {
@@ -212,13 +230,15 @@ const QuoteGenerator = () => {
 
         {/* Step 2: Measurements & Calculation */}
         {step === 2 && (
-          <Card className="border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle>Mått & Automatisk Kalkyl</CardTitle>
-              <CardDescription>Klistra in mått eller ladda upp IKEA-ritning för automatisk prisberäkning</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <PDFUploader onParsedData={handlePDFData} />
+            
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle>Manuell inmatning & Automatisk Kalkyl</CardTitle>
+                <CardDescription>Eller skriv in mått manuellt för automatisk prisberäkning</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div>
                   <Label htmlFor="measurements">Mått (text) *</Label>
                   <Textarea
@@ -232,55 +252,43 @@ const QuoteGenerator = () => {
                     Skriv varje produkt på en ny rad. Exempel: "2x bänkskåp 60cm"
                   </p>
                 </div>
-                
+
                 <div>
-                  <Label>IKEA-ritning (kommer snart)</Label>
-                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center bg-slate-50">
-                    <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-slate-500 mb-2">Drag & släpp IKEA Home Planner-fil här</p>
-                    <p className="text-xs text-slate-400">Eller klicka för att välja fil</p>
-                    <Badge className="mt-4 bg-orange-100 text-orange-700">
-                      Pro-funktion
-                    </Badge>
-                  </div>
+                  <Label htmlFor="additionalNotes">Ytterligare anteckningar</Label>
+                  <Textarea
+                    id="additionalNotes"
+                    value={formData.additionalNotes}
+                    onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                    placeholder="Specialönskemål, färger, leveranstid..."
+                    rows={3}
+                  />
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="additionalNotes">Ytterligare anteckningar</Label>
-                <Textarea
-                  id="additionalNotes"
-                  value={formData.additionalNotes}
-                  onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
-                  placeholder="Specialönskemål, färger, leveranstid..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="flex space-x-4">
-                <Button variant="outline" onClick={() => setStep(1)}>
-                  Tillbaka
-                </Button>
-                <Button 
-                  onClick={handleGenerate}
-                  disabled={!formData.measurements.trim() || isGenerating}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-orange-500"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Wand2 className="h-4 w-4 mr-2 animate-spin" />
-                      Genererar offert...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="h-4 w-4 mr-2" />
-                      Generera offert
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="flex space-x-4">
+                  <Button variant="outline" onClick={() => setStep(1)}>
+                    Tillbaka
+                  </Button>
+                  <Button 
+                    onClick={handleGenerate}
+                    disabled={!formData.measurements.trim() || isGenerating}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-orange-500"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Wand2 className="h-4 w-4 mr-2 animate-spin" />
+                        Genererar offert...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="h-4 w-4 mr-2" />
+                        Generera offert
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Step 3: Review & Send */}
