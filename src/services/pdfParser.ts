@@ -1,10 +1,8 @@
 
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker using a data URL approach for better compatibility
-pdfjsLib.GlobalWorkerOptions.workerSrc = `data:application/javascript;base64,${btoa(`
-importScripts('https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js');
-`)}`;
+// Configure PDF.js worker using CDN URL directly
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 export interface ExtractedProduct {
   name: string;
@@ -99,7 +97,7 @@ Respond ONLY in JSON.`;
   // return JSON.parse(data.choices[0].message.content);
   
   // For now, return realistic parsed data based on actual PDF content
-  // This would be replaced with real AI parsing
+  // This would be replaced with real AI API call
   console.log('Using mock AI response - replace with real AI API call');
   
   // Try to extract some basic patterns from the text
