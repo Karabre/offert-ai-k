@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Upload, FileText, Edit3, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { extractTextFromPDF, parseWithAI, ExtractedProduct } from "@/services/pdfParser";
 
 interface ParsedItem {
   id: string;
@@ -14,6 +15,8 @@ interface ParsedItem {
   quantity: number;
   dimensions?: string;
   detected: boolean;
+  name?: string;
+  price?: number;
 }
 
 interface PDFUploaderProps {
@@ -27,49 +30,34 @@ const PDFUploader = ({ onParsedData }: PDFUploaderProps) => {
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Mock PDF parsing function - in reality this would use a PDF library
-  const mockParsePDF = async (file: File): Promise<ParsedItem[]> => {
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Mock extracted data from IKEA PDF
-    return [
-      {
-        id: "1",
-        description: "Bänkskåp 60cm",
-        quantity: 2,
-        dimensions: "60x60x80cm",
-        detected: true
-      },
-      {
-        id: "2", 
-        description: "Bänkskåp 80cm",
-        quantity: 1,
-        dimensions: "80x60x80cm",
-        detected: true
-      },
-      {
-        id: "3",
-        description: "Väggskåp 60cm",
-        quantity: 3,
-        dimensions: "60x35x80cm", 
-        detected: true
-      },
-      {
-        id: "4",
-        description: "Högskåp",
-        quantity: 1,
-        dimensions: "60x60x200cm",
-        detected: true
-      },
-      {
-        id: "5",
-        description: "Bänkskiva",
-        quantity: 1,
-        dimensions: "320cm längd",
-        detected: false
-      }
-    ];
+  const processPDF = async (file: File): Promise<ParsedItem[]> => {
+    try {
+      console.log('Starting PDF processing...');
+      
+      // Extract text from PDF
+      const pdfText = await extractTextFromPDF(file);
+      console.log('PDF text extracted, length:', pdfText.length);
+      
+      // Parse with AI
+      const extractedProducts = await parseWithAI(pdfText);
+      console.log('AI parsing complete, products found:', extractedProducts.length);
+      
+      // Convert to ParsedItem format
+      const items: ParsedItem[] = extractedProducts.map((product, index) => ({
+        id: (index + 1).toString(),
+        description: `${product.name} - ${product.description}`,
+        quantity: product.quantity,
+        dimensions: product.dimensions,
+        detected: true,
+        name: product.name,
+        price: product.price
+      }));
+      
+      return items;
+    } catch (error) {
+      console.error('PDF processing error:', error);
+      throw new Error('Kunde inte bearbeta PDF-filen');
+    }
   };
 
   const handleFileSelect = (selectedFile: File) => {
@@ -104,12 +92,12 @@ const PDFUploader = ({ onParsedData }: PDFUploaderProps) => {
     }
   };
 
-  const processPDF = async () => {
+  const processFile = async () => {
     if (!file) return;
 
     setIsProcessing(true);
     try {
-      const items = await mockParsePDF(file);
+      const items = await processPDF(file);
       setParsedItems(items);
       setShowPreview(true);
       toast({
@@ -119,7 +107,7 @@ const PDFUploader = ({ onParsedData }: PDFUploaderProps) => {
     } catch (error) {
       toast({
         title: "Fel vid bearbetning",
-        description: "Kunde inte läsa PDF-filen",
+        description: error instanceof Error ? error.message : "Kunde inte läsa PDF-filen",
         variant: "destructive"
       });
     }
@@ -273,7 +261,7 @@ const PDFUploader = ({ onParsedData }: PDFUploaderProps) => {
 
         {file && (
           <Button
-            onClick={processPDF}
+            onClick={processFile}
             disabled={isProcessing}
             className="w-full bg-gradient-to-r from-blue-600 to-orange-500"
           >
