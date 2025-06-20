@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,7 +10,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table"
-import { Calculator, FileText, List, Plus, Settings, TrendingUp, Users } from "lucide-react";
+import { Building, Calculator, FileText, List, Plus, Settings, TrendingUp, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
