@@ -1,8 +1,9 @@
 
+
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker using CDN URL directly
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// Disable worker to avoid loading issues in Vite/browser environments
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 export interface ExtractedProduct {
   name: string;
@@ -17,10 +18,13 @@ export const extractTextFromPDF = async (file: File): Promise<string> => {
     console.log('Starting PDF text extraction...');
     const arrayBuffer = await file.arrayBuffer();
     
-    // Load the PDF document
+    // Load the PDF document without worker
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
-      verbosity: 0 // Reduce console spam
+      verbosity: 0, // Reduce console spam
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true
     });
     
     const pdf = await loadingTask.promise;
@@ -165,3 +169,4 @@ Respond ONLY in JSON.`;
   
   return products;
 };
+
